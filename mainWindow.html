@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <title>Hardy Cross Table</title>
+</head>
+<body unonload="removeMemory()">
+    <div class="container mt-4">
+        <h3 class="text-center">Hardy Cross Using Colebrook Friction Factor By OMOBOLANLE Oluwasegun</h3>
+        <table class="table table-hover mt-4">
+            <thead>
+                <tr>
+                    <th scope="col">Pipe</th>
+                    <th scope="col">L(m)</th>
+                    <th scope="col">D(m)</th>
+                    <th scope="col">Re</th>
+                    <th scope="col">f</th>
+                    <th scope="col">r</th>
+                    <th scope="col">Q(m^3/Sec)</th>
+                    <th scope="col">hf=rQ*/Q/</th>
+                    <th scope="col">2r/Q/</th>
+                    <th scope="col">DQ</th>
+                    <th scope="col">Q1=Q0+DQ</th>
+                </tr>
+            </thead>
+            <tbody class="pipe-row"></tbody>
+        </table>
+    </div>
+    <script>
+        const electron = require('electron')
+        var _ = require('lodash');
+        const fs= require('fs')
+        const writeStream = fs.createWriteStream('colebrook.csv')
+        
+        const {ipcRenderer} = electron
+        const list= document.querySelector('.pipe-row')
+
+        
+       
+        //first display method 
+        function firstRender(values){
+         for(i=0; i<=values.length; i++){
+             values[i].pipes.map(pipe=>{
+                const row=document.createElement('tr')
+                row.innerHTML=`
+                <td>Pipe${pipe.pipeName}</td>
+                    <td>${pipe.length}</td>
+                    <td>${pipe.diameter}</td>
+                    <td>${pipe.reynoldNumber}</td>
+                    <td>${pipe.fReal}</td>
+                    <td>${pipe.r}</td>
+                    <td>${pipe.q}</td>
+                    <td>${pipe.hf}</td>
+                    <td>${pipe.rq}</td>
+                    <td>${pipe.dq}</td>
+                    <td>${pipe.q1}</td>`
+                list.appendChild(row)
+             })
+             function sumOfHfs(){
+            const sumOfHfs = values[i].pipes.reduce((acc, num) => {
+                return acc + num.hf
+                }, 0)
+                return sumOfHfs 
+        }
+        function sumOfRqs(){
+            const sumOfRqs = values[i].pipes.reduce((acc, num) => {
+                return acc + num.rq
+                }, 0)
+                return sumOfRqs
+            }
+             const row2 = document.createElement('tr')
+                row2.innerHTML = `
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td>${sumOfHfs()}</td>
+                    <td>${sumOfRqs()}</td>`
+                list.appendChild(row2)
+        //iterate further to get desired Q equals Q1
+       
+            
+    }
+
+    
+            
+}    
+            ipcRenderer.on('torender', function(e, container){
+                for(i=0; i<container.length; i++){
+                container[i].pipes.map(pipe=>{
+                const row=document.createElement('tr')
+                row.innerHTML=`
+                <td>Pipe${pipe.pipeName}</td>
+                    <td>${pipe.length}</td>
+                    <td>${pipe.diameter}</td>
+                    <td>${pipe.reynoldNumber}</td>
+                    <td>${pipe.fReal}</td>
+                    <td>${pipe.r}</td>
+                    <td>${pipe.q}</td>
+                    <td>${pipe.hf}</td>
+                    <td>${pipe.rq}</td>
+                    <td>${pipe.dq}</td>
+                    <td>${pipe.q1}</td>`
+                list.appendChild(row)
+             })
+             function sumOfHfs(){
+            const sumOfHfs = container[i].pipes.reduce((acc, num) => {
+                return acc + num.hf
+                }, 0)
+                return sumOfHfs 
+        }
+        function sumOfRqs(){
+            const sumOfRqs = container[i].pipes.reduce((acc, num) => {
+                return acc + num.rq
+                }, 0)
+                return sumOfRqs
+            }
+             const row2 = document.createElement('tr')
+                row2.innerHTML = `
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td>${sumOfHfs()}</td>
+                    <td>${sumOfRqs()}</td>`
+                list.appendChild(row2)
+            
+        }
+        //iteration
+        let target1 = JSON.parse(localStorage.getItem('loops'))
+        let target = _.cloneDeep(target1)
+        for(k=0; k<8; k++){
+            for(o=0; o<target.length; o++){     
+            target[o].pipes.forEach(pipe=>{
+                        pipe.q = pipe.q1})
+               
+            target[0].pipes[2].q = target[1].pipes[2].q1 * -1
+            target[1].pipes[2].q = target[0].pipes[2].q1 * -1
+
+            target[o].pipes.forEach(x=>{
+                    return x.hf = x.r * x.q * Math.abs(x.q)
+                })
+
+            target[o].pipes.forEach(x=>{
+                    x.rq = 2 * x.r * Math.abs(x.q)
+                })
+
+            let c = target[o].pipes.reduce((acc, num)=>{
+                return acc + num.hf}, 0)
+            let d = target[o].pipes.reduce((acc, num)=>{
+                return acc + num.rq}, 0)
+            
+                target[o].pipes.forEach(pipe=>{
+            return pipe.dq = (c * -1)/d})
+
+            target[o].pipes.forEach(pipe=>{
+            return pipe.q1 = pipe.q + pipe.dq})
+            
+            target1 = _.cloneDeep(target)
+            
+            target1[o].pipes.map(pipe=>{
+                const row=document.createElement('tr')
+                row.innerHTML=`
+                <td>Pipe${pipe.pipeName}</td>
+                    <td>${pipe.length}</td>
+                    <td>${pipe.diameter}</td>
+                    <td>${pipe.reynoldNumber}</td>
+                    <td>${pipe.fReal}</td>
+                    <td>${pipe.r}</td>
+                    <td>${pipe.q}</td>
+                    <td>${pipe.hf}</td>
+                    <td>${pipe.rq}</td>
+                    <td>${pipe.dq}</td>
+                    <td>${pipe.q1}</td>`
+                list.appendChild(row)
+             })
+             function sumOfHfs(){
+            const sumOfHfs = target1[o].pipes.reduce((acc, num) => {
+                return acc + num.hf
+                }, 0)
+                return sumOfHfs 
+        }
+        function sumOfRqs(){
+            const sumOfRqs = target1[o].pipes.reduce((acc, num) => {
+                return acc + num.rq
+                }, 0)
+                return sumOfRqs
+            }
+             const row2 = document.createElement('tr')
+                row2.innerHTML = `
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td>${sumOfHfs()}</td>
+                    <td>${sumOfRqs()}</td>`
+                list.appendChild(row2)
+
+            
+            }
+            if (target1[0].pipes.map(pipe=> pipe.q ) === 
+                target[0].pipes.map(pipe=> pipe.q1)){
+                break
+            }
+
+        }
+        let btn = document.createElement('button')
+        btn.innerHTML= 'Dowload Excel'
+        btn.setAttribute('class', 'btn btn-outline-success btn-block')
+        btn.addEventListener('click', getTableData)
+
+        function getTableData(e){
+            e.preventDefault()
+
+        }
+    })
+
+    window.localStorage.clear()
+            
+        
+    </script>
+   <p class="text-center"><small >Coded with love by Niyi Aromokeye</small></p> 
+</body>
+</html>
