@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <title>Loop Populator</title>
+</head>
+<body class="container">
+    <form>
+        <div class="form-group h6">
+            <fieldset>
+                <label for="pipename" class="control-label">
+                    Enter Pipe Name</label>
+                <input class='form-control' id="pipename" type="number" 
+                autofocus required>
+                <label for="flowrate" class="control-label">
+                    Enter FlowRate in MSCFD</label>
+                <input class='form-control' id="flowrate" type="number" 
+                id='flowrate' required>
+                <label for="diameter" class="control-label">
+                    Enter Diameter In Inches</label>
+                <input class="form-control" type="number" step="0.0001"
+                id="diameter" required>
+                <label for="length" class="control-label">
+                    Enter Length in Miles</label>
+                <input class="form-control" type="number" step="0.0001"
+                id="length" required>
+            </fieldset>
+            
+            <p></p>
+            <p><strong>Where:</strong></p>
+                <p>Viscosity= <span id='viscosity'>0.03317</span>
+                </p>
+                <p>and Gravity= <span id='gravity'>0.67</span></p>
+        </div>
+        <div class="text-center">
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" 
+                id="customCheck1"/>
+                <label for="customCheck1" class="custom-control-label">
+                Anticlockwise?</label>
+            </div>
+        
+            <button type='submit' 
+                class="btn btn-outline-primary">Populate
+            </button>
+            
+            <button 
+            class="btn btn-outline-success" id="collate">Collate
+            </button>
+            
+            <button class='btn btn-outline-primary' disabled>
+                Pipes In<span class="badge badge-primary badge-pill" 
+                        id="number">0</span>
+            </button>
+        </div>
+            
+        
+        <button 
+        class="btn btn-outline-success btn-block" id="render">Render Loop
+        </button>
+        <small class="form-text text-muted text-center">Ensure to click only once</small>
+    </form>
+
+    <script src="logic.js" type="text/javascript"></script>
+</body>
+</html>
