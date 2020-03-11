@@ -1,0 +1,8 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.niyi.hardycross
+win:
+  target: nsis
+  icon: build/icon.png
+electronVersion: 8.0.1
